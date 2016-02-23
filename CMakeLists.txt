@@ -56,7 +56,10 @@ install(TARGETS bzip2 bzip2recover EXPORT ${PROJECT_NAME}-targets
   RUNTIME DESTINATION bin
   CONFIGURATIONS Release
   )
-install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION bin CONFIGURATIONS Release RENAME bunzip2)
-install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION bin CONFIGURATIONS Release RENAME bzcat)
+if(WIN32)
+  set(ext ".exe")
+endif()
+install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION bin CONFIGURATIONS Release RENAME bunzip2${ext})
+install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION bin CONFIGURATIONS Release RENAME bzcat${ext})
 install(FILES bzlib.h DESTINATION include/bzip2)
 install(EXPORT ${PROJECT_NAME}-targets DESTINATION lib/cmake)
