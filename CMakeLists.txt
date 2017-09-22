@@ -17,15 +17,27 @@ set(${lib_name}_libsrcs
   bzlib_private.h
   )
 ########################################
+if(DEFINED BZIP2_VER)
+  set(ver _${BZIP2_VER})
+  set(verDir /${PROJECT_NAME}${ver})
+endif()
+########################################
 add_library(${lib_name} STATIC ${${lib_name}_libsrcs})
 target_include_directories(${lib_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+set_target_properties(${lib_name} PROPERTIES OUTPUT_NAME ${lib_name}${ver})
 ########################################
 add_executable(bzip2 bzip2.c)
 target_link_libraries(bzip2 ${lib_name})
-set_target_properties(bzip2 PROPERTIES DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}")
+set_target_properties(bzip2 PROPERTIES
+  DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}"
+  OUTPUT_NAME bzip2${ver}
+  )
 ########################################
 add_executable(bzip2recover bzip2recover.c)
-set_target_properties(bzip2recover PROPERTIES DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}")
+set_target_properties(bzip2recover PROPERTIES
+  DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}"
+  OUTPUT_NAME bzip2recover${ver}
+  )
 ########################################
 set(srcDir ${CMAKE_CURRENT_SOURCE_DIR})
 set(binDir ${CMAKE_CURRENT_BINARY_DIR})
@@ -45,12 +57,13 @@ add_custom_target(check ALL COMMENT ${words1}
   COMMAND ${CMAKE_COMMAND} -E compare_files ${binDir}/sample3.tst ${srcDir}/sample3.ref
   )
 ########################################
-install(TARGETS ${lib_name} EXPORT ${PROJECT_NAME}-targets
+set(targetsFile ${PROJECT_NAME}${ver}-targets)
+install(TARGETS ${lib_name} EXPORT ${targetsFile}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
   )
-install(TARGETS bzip2 bzip2recover EXPORT ${PROJECT_NAME}-targets
+install(TARGETS bzip2 bzip2recover EXPORT ${targetsFile}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
@@ -59,7 +72,7 @@ install(TARGETS bzip2 bzip2recover EXPORT ${PROJECT_NAME}-targets
 if(WIN32)
   set(ext ".exe")
 endif()
-install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION bin CONFIGURATIONS Release RENAME bunzip2${ext})
-install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION bin CONFIGURATIONS Release RENAME bzcat${ext})
-install(FILES bzlib.h DESTINATION include/bzip2)
-install(EXPORT ${PROJECT_NAME}-targets DESTINATION lib/cmake)
+install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION bin CONFIGURATIONS Release RENAME bunzip2${ver}${ext})
+install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION bin CONFIGURATIONS Release RENAME bzcat${ver}${ext})
+install(FILES bzlib.h DESTINATION include${verDir}/${PROJECT_NAME})
+install(EXPORT ${targetsFile} DESTINATION lib/cmake)
