@@ -23,7 +23,9 @@ if(DEFINED BZIP2_VER)
 endif()
 ########################################
 add_library(${lib_name} STATIC ${${lib_name}_libsrcs})
-target_include_directories(${lib_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${lib_name} PUBLIC $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include${verDir}>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+  )
 set_target_properties(${lib_name} PROPERTIES OUTPUT_NAME ${lib_name}${ver})
 ########################################
 add_executable(bzip2 bzip2.c)
@@ -75,4 +77,7 @@ endif()
 install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION bin CONFIGURATIONS Release RENAME bunzip2${ver}${ext})
 install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION bin CONFIGURATIONS Release RENAME bzcat${ver}${ext})
 install(FILES bzlib.h DESTINATION include${verDir}/${PROJECT_NAME})
-install(EXPORT ${targetsFile} DESTINATION lib/cmake)
+if(DEFINED XP_NAMESPACE)
+  set(nameSpace NAMESPACE ${XP_NAMESPACE}::)
+endif()
+install(EXPORT ${targetsFile} DESTINATION lib/cmake ${nameSpace})
