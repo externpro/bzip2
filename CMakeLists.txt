@@ -1,0 +1,72 @@
+cmake_minimum_required(VERSION 3.20)
+project(bzip2 C)
+include(GNUInstallDirs)
+include(flags OPTIONAL)
+set(lib_name bz2)
+########################################
+add_definitions(-D_FILE_OFFEST_BITS=64)
+########################################
+set(${lib_name}_libsrcs
+  blocksort.c
+  huffman.c
+  crctable.c
+  randtable.c
+  compress.c
+  decompress.c
+  bzlib.c
+  bzlib.h
+  bzlib_private.h
+  )
+########################################
+add_library(${lib_name} STATIC ${${lib_name}_libsrcs})
+target_include_directories(${lib_name} PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+########################################
+add_executable(bzip2 bzip2.c)
+target_link_libraries(bzip2 ${lib_name})
+set_target_properties(bzip2 PROPERTIES DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}")
+########################################
+add_executable(bzip2recover bzip2recover.c)
+set_target_properties(bzip2recover PROPERTIES DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}")
+########################################
+set(srcDir ${CMAKE_CURRENT_SOURCE_DIR})
+set(binDir ${CMAKE_CURRENT_BINARY_DIR})
+file(READ words1 words1)
+add_custom_target(check ALL COMMENT ${words1}
+  COMMAND $<TARGET_FILE:bzip2> -1 < ${srcDir}/sample1.ref > ${binDir}/sample1.rb2
+  COMMAND $<TARGET_FILE:bzip2> -2 < ${srcDir}/sample2.ref > ${binDir}/sample2.rb2
+  COMMAND $<TARGET_FILE:bzip2> -3 < ${srcDir}/sample3.ref > ${binDir}/sample3.rb2
+  COMMAND $<TARGET_FILE:bzip2> -d < ${srcDir}/sample1.bz2 > ${binDir}/sample1.tst
+  COMMAND $<TARGET_FILE:bzip2> -d < ${srcDir}/sample2.bz2 > ${binDir}/sample2.tst
+  COMMAND $<TARGET_FILE:bzip2> -ds < ${srcDir}/sample3.bz2 > ${binDir}/sample3.tst
+  COMMAND ${CMAKE_COMMAND} -E compare_files ${srcDir}/sample1.bz2 ${binDir}/sample1.rb2
+  COMMAND ${CMAKE_COMMAND} -E compare_files ${srcDir}/sample2.bz2 ${binDir}/sample2.rb2
+  COMMAND ${CMAKE_COMMAND} -E compare_files ${srcDir}/sample3.bz2 ${binDir}/sample3.rb2
+  COMMAND ${CMAKE_COMMAND} -E compare_files ${binDir}/sample1.tst ${srcDir}/sample1.ref
+  COMMAND ${CMAKE_COMMAND} -E compare_files ${binDir}/sample2.tst ${srcDir}/sample2.ref
+  COMMAND ${CMAKE_COMMAND} -E compare_files ${binDir}/sample3.tst ${srcDir}/sample3.ref
+  )
+########################################
+set(targetsFile ${PROJECT_NAME}-targets)
+install(TARGETS ${lib_name} EXPORT ${targetsFile}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+install(TARGETS bzip2 bzip2recover EXPORT ${targetsFile}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  CONFIGURATIONS Release
+  )
+install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION ${CMAKE_INSTALL_BINDIR} CONFIGURATIONS Release RENAME bunzip2${CMAKE_EXECUTABLE_SUFFIX})
+install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION ${CMAKE_INSTALL_BINDIR} CONFIGURATIONS Release RENAME bzcat${CMAKE_EXECUTABLE_SUFFIX})
+install(FILES bzlib.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+if(DEFINED XP_NAMESPACE)
+  set(nameSpace NAMESPACE ${XP_NAMESPACE}::)
+endif()
+if(NOT DEFINED XP_INSTALL_CMAKEDIR)
+  set(XP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_DATADIR}/cmake)
+endif()
+install(EXPORT ${targetsFile} DESTINATION ${XP_INSTALL_CMAKEDIR} ${nameSpace})
