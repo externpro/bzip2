@@ -32,22 +32,14 @@ set_target_properties(bzip2 PROPERTIES DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}")
 add_executable(bzip2recover bzip2recover.c)
 set_target_properties(bzip2recover PROPERTIES DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}")
 ########################################
-set(srcDir ${CMAKE_CURRENT_SOURCE_DIR})
-set(binDir ${CMAKE_CURRENT_BINARY_DIR})
-file(READ words1 words1)
-add_custom_target(check ALL COMMENT ${words1}
-  COMMAND $<TARGET_FILE:bzip2> -1 < ${srcDir}/sample1.ref > ${binDir}/sample1.rb2
-  COMMAND $<TARGET_FILE:bzip2> -2 < ${srcDir}/sample2.ref > ${binDir}/sample2.rb2
-  COMMAND $<TARGET_FILE:bzip2> -3 < ${srcDir}/sample3.ref > ${binDir}/sample3.rb2
-  COMMAND $<TARGET_FILE:bzip2> -d < ${srcDir}/sample1.bz2 > ${binDir}/sample1.tst
-  COMMAND $<TARGET_FILE:bzip2> -d < ${srcDir}/sample2.bz2 > ${binDir}/sample2.tst
-  COMMAND $<TARGET_FILE:bzip2> -ds < ${srcDir}/sample3.bz2 > ${binDir}/sample3.tst
-  COMMAND ${CMAKE_COMMAND} -E compare_files ${srcDir}/sample1.bz2 ${binDir}/sample1.rb2
-  COMMAND ${CMAKE_COMMAND} -E compare_files ${srcDir}/sample2.bz2 ${binDir}/sample2.rb2
-  COMMAND ${CMAKE_COMMAND} -E compare_files ${srcDir}/sample3.bz2 ${binDir}/sample3.rb2
-  COMMAND ${CMAKE_COMMAND} -E compare_files ${binDir}/sample1.tst ${srcDir}/sample1.ref
-  COMMAND ${CMAKE_COMMAND} -E compare_files ${binDir}/sample2.tst ${srcDir}/sample2.ref
-  COMMAND ${CMAKE_COMMAND} -E compare_files ${binDir}/sample3.tst ${srcDir}/sample3.ref
+include(CTest)
+add_test(NAME bzip2_check
+  COMMAND ${CMAKE_COMMAND}
+    -DCMD=$<TARGET_FILE:bzip2>
+    -DSRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+    -DBIN_DIR=${CMAKE_CURRENT_BINARY_DIR}
+    -P ${CMAKE_CURRENT_SOURCE_DIR}/run_bzip2_test.cmake
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
 ########################################
 set(targetsFile ${PROJECT_NAME}-targets)
