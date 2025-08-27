@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.31)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/.devcontainer/cmake)
 set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES xproinc)
-project(bzip2 VERSION 1.0.8.1 LANGUAGES C)
+project(bzip2 VERSION 1.0.8.2 LANGUAGES C)
 include(flags)
 include(GNUInstallDirs)
 set(lib_name bz2)
