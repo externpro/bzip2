@@ -4,7 +4,11 @@
     {
       "name": "config-base",
       "hidden": true,
-      "binaryDir": "${sourceDir}/_bld-${presetName}"
+      "binaryDir": "${sourceDir}/_bld-${presetName}",
+      "cacheVariables": {
+        "XP_INSTALL_CMAKEDIR": "share/cmake",
+        "XP_NAMESPACE": "xpro"
+      }
     }
   ]
 }

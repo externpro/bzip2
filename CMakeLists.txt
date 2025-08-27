@@ -1,7 +1,9 @@
-cmake_minimum_required(VERSION 3.20)
-project(bzip2 C)
+cmake_minimum_required(VERSION 3.31)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/.devcontainer/cmake)
+set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES xproinc)
+project(bzip2 VERSION 1.0.8 LANGUAGES C)
+include(flags)
 include(GNUInstallDirs)
-include(flags OPTIONAL)
 set(lib_name bz2)
 ########################################
 add_definitions(-D_FILE_OFFEST_BITS=64)
@@ -49,6 +51,13 @@ add_custom_target(check ALL COMMENT ${words1}
   )
 ########################################
 set(targetsFile ${PROJECT_NAME}-targets)
+set(exe bzip2)
+set(lib ${lib_name})
+if(DEFINED XP_NAMESPACE)
+  string(PREPEND exe "${XP_NAMESPACE}::")
+  string(PREPEND lib "${XP_NAMESPACE}::")
+endif()
+xpPackageDevel(TARGETS_FILE ${targetsFile} LIBRARIES ${lib} EXE ${exe})
 install(TARGETS ${lib_name} EXPORT ${targetsFile}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
