@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.31)
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/.devcontainer/cmake)
-set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES xproinc)
-project(bzip2 VERSION 1.0.8.2 LANGUAGES C)
-include(flags)
-include(GNUInstallDirs)
+set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES .devcontainer/cmake/xproinc.cmake)
+project(bzip2 VERSION 1.0.8 LANGUAGES C)
 set(lib_name bz2)
 ########################################
 add_definitions(-D_FILE_OFFEST_BITS=64)
@@ -43,13 +40,6 @@ add_test(NAME bzip2_check
   )
 ########################################
 set(targetsFile ${PROJECT_NAME}-targets)
-set(exe bzip2)
-set(lib ${lib_name})
-if(DEFINED XP_NAMESPACE)
-  string(PREPEND exe "${XP_NAMESPACE}::")
-  string(PREPEND lib "${XP_NAMESPACE}::")
-endif()
-xpPackageDevel(TARGETS_FILE ${targetsFile} LIBRARIES ${lib} EXE ${exe})
 install(TARGETS ${lib_name} EXPORT ${targetsFile}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -65,9 +55,18 @@ install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION ${CMAKE_INSTALL_BINDIR} CONFIG
 install(PROGRAMS $<TARGET_FILE:bzip2> DESTINATION ${CMAKE_INSTALL_BINDIR} CONFIGURATIONS Release RENAME bzcat${CMAKE_EXECUTABLE_SUFFIX})
 install(FILES bzlib.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 if(DEFINED XP_NAMESPACE)
-  set(nameSpace NAMESPACE ${XP_NAMESPACE}::)
+  string(JOIN "\n" ALIASES
+    "if(NOT TARGET BZip2::BZip2)"
+    "  add_library(BZip2::BZip2 ALIAS ${XP_NAMESPACE}::${lib_name})"
+    "endif()"
+    ""
+    )
+  xpExternPackage(NAMESPACE ${XP_NAMESPACE}
+    TARGETS_FILE ${targetsFile} LIBRARIES ${lib_name} EXE bzip2
+    BASE ${CMAKE_PROJECT_NAME}-${CMAKE_PROJECT_VERSION} XPDIFF "intro"
+    WEB "https://sourceware.org/bzip2/" UPSTREAM "github.com/opencor/bzip2"
+    DESC "lossless block-sorting data compression library"
+    LICENSE "[bzip2-1.0.6](https://spdx.org/licenses/bzip2-1.0.6.html 'BSD-like, modified zlib license')"
+    )
+  install(EXPORT ${targetsFile} DESTINATION ${XP_INSTALL_CMAKEDIR} NAMESPACE ${XP_NAMESPACE}::)
 endif()
-if(NOT DEFINED XP_INSTALL_CMAKEDIR)
-  set(XP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_DATADIR}/cmake)
-endif()
-install(EXPORT ${targetsFile} DESTINATION ${XP_INSTALL_CMAKEDIR} ${nameSpace})
