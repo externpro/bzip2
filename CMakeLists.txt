@@ -68,5 +68,5 @@ if(DEFINED XP_NAMESPACE)
     DESC "lossless block-sorting data compression library"
     LICENSE "[bzip2-1.0.6](https://spdx.org/licenses/bzip2-1.0.6.html 'BSD-like, modified zlib license')"
     )
-  install(EXPORT ${targetsFile} DESTINATION ${XP_INSTALL_CMAKEDIR} NAMESPACE ${XP_NAMESPACE}::)
+  install(EXPORT ${targetsFile} DESTINATION ${CMAKE_INSTALL_CMAKEDIR} NAMESPACE ${XP_NAMESPACE}::)
 endif()
