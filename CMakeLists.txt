@@ -65,7 +65,6 @@ if(COMMAND xpExternPackage)
     ""
     )
   xpExternPackage(TARGETS_FILE ${targetsFile}
-    FIND_XPRO_CMAKE PKG_CMAKE_USEXT CREATE_ALIASES
     LIBRARIES ${lib_name} EXE ${exe_name} DEFAULT_TARGETS ${lib_name}
     BASE ${CMAKE_PROJECT_NAME}-${CMAKE_PROJECT_VERSION} XPDIFF "intro"
     WEB "https://sourceware.org/bzip2/" UPSTREAM "github.com/opencor/bzip2"
